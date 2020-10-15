@@ -1,9 +1,12 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import { createConnection } from 'typeorm';
+import userRouter from './routes/user';
+import passport from 'passport';
+import passportConfig from './passport';
 
 dotenv.config();
 const app = express();
@@ -31,6 +34,18 @@ app.use(
     },
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
+passportConfig();
+
+app.use('/user', userRouter);
+app.get('/test', (req, res) => {
+  res.json(req.user);
+});
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  console.log(error);
+  res.status(500).json(error);
+});
 
 app.listen(app.get('port'), () => {
   console.log(`${app.get('port')} port에서 서버 실행 중`);
