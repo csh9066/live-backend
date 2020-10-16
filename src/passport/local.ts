@@ -14,7 +14,7 @@ export = () => {
           if (!user || !(await user.checkPaaword(password))) {
             return done(null, false, { message: 'email or password wrong' });
           }
-          return done(null, user);
+          return done(null, user.id);
         } catch (e) {
           done(e);
         }

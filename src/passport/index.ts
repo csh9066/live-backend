@@ -3,9 +3,8 @@ import User from '../entity/User';
 import local from './local';
 
 export = () => {
-  serializeUser((user: User, done) => {
-    console.log('serailize', user.email);
-    done(null, user.id);
+  serializeUser((userId: User, done) => {
+    done(null, userId);
   });
   deserializeUser(async (id: string, done) => {
     try {
