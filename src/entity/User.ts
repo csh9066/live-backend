@@ -31,8 +31,9 @@ export default class User extends BaseEntity {
   createdAt!: Date;
 
   async checkPaaword(password: string): Promise<boolean> {
-    const hashPassword = await bcrypt.hash(this.password, 10);
-    const isEqual = await bcrypt.compare(password, hashPassword);
+    const isEqual = await bcrypt.compare(password, this.password);
+    console.log(isEqual);
+
     return isEqual;
   }
 }
