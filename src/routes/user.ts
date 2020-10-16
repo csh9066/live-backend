@@ -3,7 +3,7 @@ import * as UserController from '../controllers/UserController';
 
 const router = express.Router();
 
-router.post('/', UserController.join);
+router.post('/', UserController.createUser);
 router.post('/login', UserController.login);
 router.get('/logout', UserController.logout);
 
