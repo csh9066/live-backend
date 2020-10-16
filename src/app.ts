@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import { createConnection } from 'typeorm';
+import cors from 'cors';
 import userRouter from './routes/user';
 import passport from 'passport';
 import passportConfig from './passport';
@@ -19,6 +20,12 @@ createConnection()
   })
   .catch((e) => console.log(e));
 
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
