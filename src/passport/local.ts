@@ -11,7 +11,9 @@ export = () => {
         const userRepo = getRepository(User);
         try {
           const user = await userRepo.findOne({ email });
-          if (!user || !(await user.checkPaaword(password))) {
+          const matchedPassword = await user?.checkPassword(password);
+
+          if (!user || !matchedPassword) {
             return done(null, false, { message: 'email or password wrong' });
           }
           return done(null, user.id);

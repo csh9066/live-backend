@@ -30,10 +30,8 @@ export default class User extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  async checkPaaword(password: string): Promise<boolean> {
+  async checkPassword(password: string): Promise<boolean> {
     const isEqual = await bcrypt.compare(password, this.password);
-    console.log(isEqual);
-
     return isEqual;
   }
 }

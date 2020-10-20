@@ -10,16 +10,19 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
+  // 유효성 검사
   const loginSchema = yup.object().shape({
     email: yup.string().required().email(),
     password: yup.string().required().min(8).max(16),
   });
 
   const validResult: boolean = await loginSchema.isValid(req.body);
+
   if (!validResult) {
     return res.status(400).send('유효하지 않은 형식입니다.');
   }
 
+  // 패스포트 로그인
   passport.authenticate('local', (error, userId, info) => {
     if (error) {
       return next(error);
@@ -31,7 +34,6 @@ export const login = async (
       if (loginError) {
         return next(loginError);
       }
-      console.log(userId);
 
       const result = await getRepository(User).findOne({
         where: { id: userId },
@@ -43,11 +45,13 @@ export const login = async (
   })(req, res, next);
 };
 
+// 로그 아웃
 export const logout = (req: Request, res: Response) => {
   req.logOut();
-  res.status(200).send('logout');
+  res.sendStatus(204);
 };
 
+// 회원 가입
 export const createUser = async (
   req: Request,
   res: Response,
@@ -84,4 +88,11 @@ export const createUser = async (
   } catch (error) {
     next(error);
   }
+};
+
+export const check = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.sendStatus(401);
+  }
+  return res.json(req.user);
 };

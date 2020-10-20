@@ -8,10 +8,13 @@ export = () => {
   });
   deserializeUser(async (id: string, done) => {
     try {
-      const user = await User.findOneOrFail(id);
+      const user = await User.findOneOrFail({
+        where: { id },
+        select: ['id', 'email', 'nickname', 'provider', 'createdAt'],
+      });
       done(null, user);
     } catch (error) {
-      console.log(error);
+      console.log(error, 'ssibal');
       done(error);
     }
   });
