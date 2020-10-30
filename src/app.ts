@@ -5,9 +5,10 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import { createConnection } from 'typeorm';
 import cors from 'cors';
-import userRouter from './routes/user';
 import passport from 'passport';
 import passportConfig from './passport';
+
+import authRouter from './routes/auth';
 
 dotenv.config();
 const app = express();
@@ -33,7 +34,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
   session({
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     secret: process.env.COOKIE_SECRET!,
     cookie: {
       httpOnly: true,
@@ -45,11 +46,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 passportConfig();
 
-app.use('/user', userRouter);
+app.use('/auth', authRouter);
+
 app.get('/test', (req, res) => {
   res.json(req.user);
 });
-app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+app.use((error: any, req: Request, res: Response) => {
   console.log(error);
   res.status(500).json(error);
 });
