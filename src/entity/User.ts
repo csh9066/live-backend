@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import bcrypt from 'bcryptjs';
+import { Message } from './Message';
 
 @Entity()
 export default class User extends BaseEntity {
@@ -15,23 +17,25 @@ export default class User extends BaseEntity {
   @Column({ unique: true })
   email!: string;
 
-  @Column({ nullable: true })
-  password!: string;
-
   @Column()
   nickname!: string;
 
-  @Column({ nullable: true })
+  @Column()
   provider!: string;
 
-  @Column({ nullable: true, name: 'sns_id' })
-  snsId!: string;
+  @Column({ nullable: true, name: 'profile_img_url' })
+  profileImageUrl!: string;
+
+  @Column({ default: false })
+  online!: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  async checkPassword(password: string): Promise<boolean> {
-    const isEqual = await bcrypt.compare(password, this.password);
-    return isEqual;
-  }
+  @OneToMany(() => Message, (Message) => Message.user)
+  messages!: Message[];
+  // async checkPassword(password: string): Promise<boolean> {
+  //   const isEqual = await bcrypt.compare(password, this.password);
+  //   return isEqual;
+  // }
 }
