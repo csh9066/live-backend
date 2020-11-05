@@ -5,6 +5,7 @@ import * as AuthController from '../controllers/AuthController';
 const authRouter = express.Router();
 
 authRouter.get('/check', AuthController.check);
+authRouter.post('/local/login', AuthController.localLogin);
 
 authRouter.get(
   '/facebook',
