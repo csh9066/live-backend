@@ -9,6 +9,7 @@ import passport from 'passport';
 import passportConfig from './passport';
 
 import authRouter from './routes/auth';
+import usersRouter from './routes/users';
 
 dotenv.config();
 const app = express();
@@ -47,11 +48,9 @@ app.use(passport.session());
 passportConfig();
 
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 
-app.get('/test', (req, res) => {
-  res.json(req.user);
-});
-app.use((error: any, req: Request, res: Response) => {
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
   res.status(500).json(error);
 });
