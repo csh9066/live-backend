@@ -9,7 +9,7 @@ import passport from 'passport';
 import passportConfig from './passport';
 
 import authRouter from './routes/auth';
-import usersRouter from './routes/users';
+import usersRouter from './routes/friends';
 
 dotenv.config();
 const app = express();
@@ -48,7 +48,7 @@ app.use(passport.session());
 passportConfig();
 
 app.use('/auth', authRouter);
-app.use('/users', usersRouter);
+app.use('/friends', usersRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
