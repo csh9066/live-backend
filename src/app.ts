@@ -6,10 +6,12 @@ import session from 'express-session';
 import { createConnection } from 'typeorm';
 import cors from 'cors';
 import passport from 'passport';
+
 import passportConfig from './passport';
 
 import authRouter from './routes/auth';
 import usersRouter from './routes/friends';
+import socket from './socket';
 
 dotenv.config();
 const app = express();
@@ -55,6 +57,8 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json(error);
 });
 
-app.listen(app.get('port'), () => {
+const server = app.listen(app.get('port'), () => {
   console.log(`${app.get('port')} port에서 서버 실행 중`);
 });
+
+socket(server, app);
