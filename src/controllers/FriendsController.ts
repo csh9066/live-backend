@@ -1,14 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
+import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
+import { DirectMessage } from '../entity/DirectMessage';
 import User from '../entity/User';
+import { IOnlineMap } from '../socket';
 
 export const getFriends = async (req: Request, res: Response) => {
   const userRepo = getRepository(User);
-  const serializedUser = req.user as User;
+  const authenticatedUser = req.user as User;
 
   const me = await userRepo.findOne({
     where: {
-      id: serializedUser.id,
+      id: authenticatedUser.id,
     },
     relations: ['friends'],
   });
@@ -25,7 +28,7 @@ export const addFriendByEmail = async (
     return res.status(404).send('존재 하지 않는 유저입니다.');
   }
   try {
-    const serializedUser = req.user as User;
+    const authenticatedUser = req.user as User;
     const userRepo = getRepository(User);
 
     const friendToBeAdded = await userRepo.findOne({
@@ -39,7 +42,7 @@ export const addFriendByEmail = async (
 
     const me = (await userRepo.findOne({
       where: {
-        id: serializedUser.id,
+        id: authenticatedUser.id,
       },
       relations: ['friends'],
     })) as User;
@@ -62,6 +65,77 @@ export const addFriendByEmail = async (
     });
 
     res.json(AddedFrined);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const createDirectMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = parseInt(req.params.id);
+  const { content } = req.body;
+  const authenticatedUser = req.user as User;
+  const userRepo = getRepository(User);
+  const dmRepo = getRepository(DirectMessage);
+
+  if (!content || !id) {
+    res.sendStatus(400);
+  }
+
+  try {
+    const receiver = await userRepo.findOne(id);
+    const sender = await userRepo.findOne(authenticatedUser.id);
+
+    if (!receiver || !sender) {
+      res.status(404).send('존재 하지 않는 유저입니다');
+    }
+
+    const createdDm = await dmRepo.save({
+      content,
+      receiver,
+      sender,
+    });
+
+    const serializedDm = await dmRepo.findOne({
+      where: {
+        id: createdDm.id,
+      },
+      relations: ['sender'],
+    });
+
+    const io: Server = req.app.get('io');
+    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+
+    if (onlineMap[id]) {
+      io.to(onlineMap[id]).emit('receive dm', serializedDm);
+    }
+
+    res.json(serializedDm);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const listDirectMessage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+  const authenticatedUser = req.user as User;
+  try {
+    const dmList = await getRepository(DirectMessage).find({
+      where: [
+        { sender: { id }, receiver: { id: authenticatedUser.id } },
+        { sender: { id: authenticatedUser.id }, receiver: { id } },
+      ],
+      relations: ['sender'],
+    });
+
+    res.json(dmList);
   } catch (e) {
     next(e);
   }
