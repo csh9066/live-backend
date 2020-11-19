@@ -12,6 +12,7 @@ import passportConfig from './passport';
 import authRouter from './routes/auth';
 import usersRouter from './routes/friends';
 import socket from './socket';
+import channelsRouter from './routes/channels';
 
 dotenv.config();
 const app = express();
@@ -51,6 +52,7 @@ passportConfig();
 
 app.use('/auth', authRouter);
 app.use('/friends', usersRouter);
+app.use('/channels', channelsRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
