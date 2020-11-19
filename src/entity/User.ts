@@ -3,10 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import Channel from './Channel';
+import { DirectMessage } from './DirectMessage';
 import { Message } from './Message';
 
 @Entity()
@@ -32,10 +35,20 @@ export default class User extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @OneToMany(() => Message, (Message) => Message.user)
+  @ManyToMany(() => Channel, (Channel) => Channel.users)
+  channels!: Channel[];
+
+  @OneToMany(() => Message, (Message) => Message.author)
   messages!: Message[];
-  // async checkPassword(password: string): Promise<boolean> {
-  //   const isEqual = await bcrypt.compare(password, this.password);
-  //   return isEqual;
-  // }
+
+  @OneToMany(() => DirectMessage, (DirectMessage) => DirectMessage.sender)
+  DirectMessages!: DirectMessage[];
+
+  @ManyToMany(() => User, (User) => User.friends)
+  @JoinTable({
+    name: 'user_friends',
+    inverseJoinColumn: { name: 'user_id' },
+    joinColumn: { name: 'friend_id' },
+  })
+  friends!: User[];
 }

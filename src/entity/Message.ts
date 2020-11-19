@@ -18,19 +18,20 @@ export class Message extends BaseEntity {
   id!: number;
 
   @Column()
-  text!: string;
+  content!: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @OneToMany(() => MessageImage, (MessageImage) => MessageImage.message, {
     nullable: true,
+    eager: true,
   })
   images!: MessageImage[];
 
   @ManyToOne(() => User, (User) => User.messages)
-  @JoinColumn({ name: 'user_id' })
-  user!: User;
+  @JoinColumn({ name: 'author_id' })
+  author!: User;
 
   @ManyToOne(() => Channel, (Channel) => Channel.messages)
   @JoinColumn({ name: 'channel_id' })

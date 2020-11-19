@@ -31,7 +31,7 @@ export class DirectMessage extends BaseEntity {
   @OneToMany(
     () => DirectMessageImage,
     (DirectMessageImage) => DirectMessageImage.message,
-    { nullable: true }
+    { nullable: true, eager: true }
   )
   images!: DirectMessageImage[];
 
