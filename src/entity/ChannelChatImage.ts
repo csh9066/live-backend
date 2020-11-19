@@ -5,13 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import ChannelChat from './ChannelChat';
 
 @Entity()
-export default class MessageImage extends BaseEntity {
-  @PrimaryColumn()
+export default class ChannelChatImage extends BaseEntity {
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()

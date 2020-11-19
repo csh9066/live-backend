@@ -31,6 +31,8 @@ export default class Channel extends BaseEntity {
   })
   users!: User[];
 
-  @OneToMany((type) => ChannelChat, (ChannelChat) => ChannelChat.channel)
+  @OneToMany((type) => ChannelChat, (ChannelChat) => ChannelChat.channel, {
+    cascade: true,
+  })
   chats!: ChannelChat[];
 }

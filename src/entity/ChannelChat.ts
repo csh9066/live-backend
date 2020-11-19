@@ -7,14 +7,15 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import Channel from './Channel';
 import ChannelChatImage from './ChannelChatImage';
 import User from './User';
 
 @Entity()
-export default class Message extends BaseEntity {
-  @PrimaryColumn()
+export default class ChannelChat extends BaseEntity {
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
