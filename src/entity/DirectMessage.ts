@@ -9,13 +9,13 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { DirectMessageImage } from './DirectMessageImage';
+import DirectMessageImage from './DirectMessageImage';
 import User from './User';
 
 @Entity({
   name: 'direct_message',
 })
-export class DirectMessage extends BaseEntity {
+export default class DirectMessage extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -35,11 +35,11 @@ export class DirectMessage extends BaseEntity {
   )
   images!: DirectMessageImage[];
 
-  @ManyToOne(() => User, (User) => User.DirectMessages)
+  @ManyToOne(() => User, (User) => User.directMessages)
   @JoinColumn({ name: 'sender_id' })
   sender!: User;
 
-  @ManyToOne(() => User, (User) => User.DirectMessages)
+  @ManyToOne(() => User, (User) => User.directMessages)
   @JoinColumn({ name: 'receiver_id' })
   receiver!: User;
 }

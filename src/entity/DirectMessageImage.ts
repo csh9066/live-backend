@@ -7,10 +7,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { DirectMessage } from './DirectMessage';
+import DirectMessage from './DirectMessage';
 
 @Entity()
-export class DirectMessageImage extends BaseEntity {
+export default class DirectMessageImage extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 

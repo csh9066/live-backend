@@ -8,7 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Message } from './Message';
+import ChannelChat from './ChannelChat';
 
 import User from './User';
 
@@ -31,12 +31,6 @@ export default class Channel extends BaseEntity {
   })
   users!: User[];
 
-  @OneToMany((type) => Message, (Message) => Message.channel)
-  messages!: Message[];
-  // @JoinTable({
-  //   name: 'join_room',
-  //   joinColumn: { name: 'room_id' },
-  //   inverseJoinColumn: { name: 'user_id' },
-  // })
-  // users!: User[];
+  @OneToMany((type) => ChannelChat, (ChannelChat) => ChannelChat.channel)
+  chats!: ChannelChat[];
 }

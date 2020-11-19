@@ -7,10 +7,10 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from 'typeorm';
-import { Message } from './Message';
+import ChannelChat from './ChannelChat';
 
 @Entity()
-export class MessageImage extends BaseEntity {
+export default class MessageImage extends BaseEntity {
   @PrimaryColumn()
   id!: number;
 
@@ -20,7 +20,7 @@ export class MessageImage extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @ManyToOne(() => Message, (Message) => Message.images)
-  @JoinColumn({ name: 'message_id' })
-  message!: Message;
+  @ManyToOne(() => ChannelChat, (ChannelChat) => ChannelChat.images)
+  @JoinColumn({ name: 'channel_chat_id' })
+  chat!: ChannelChat;
 }

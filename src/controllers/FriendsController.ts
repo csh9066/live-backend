@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
-import { DirectMessage } from '../entity/DirectMessage';
+import DirectMessage from '../entity/DirectMessage';
 import User from '../entity/User';
 import { IOnlineMap } from '../socket';
 

@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Channel from './Channel';
-import { DirectMessage } from './DirectMessage';
-import { Message } from './Message';
+import DirectMessage from './DirectMessage';
+import ChnnelChat from './ChannelChat';
 
 @Entity()
 export default class User extends BaseEntity {
@@ -38,11 +38,11 @@ export default class User extends BaseEntity {
   @ManyToMany(() => Channel, (Channel) => Channel.users)
   channels!: Channel[];
 
-  @OneToMany(() => Message, (Message) => Message.author)
-  messages!: Message[];
+  @OneToMany(() => ChnnelChat, (ChnnelChat) => ChnnelChat.author)
+  channelChat!: ChnnelChat[];
 
   @OneToMany(() => DirectMessage, (DirectMessage) => DirectMessage.sender)
-  DirectMessages!: DirectMessage[];
+  directMessages!: DirectMessage[];
 
   @ManyToMany(() => User, (User) => User.friends)
   @JoinTable({

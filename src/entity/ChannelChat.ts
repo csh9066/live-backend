@@ -9,11 +9,11 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import Channel from './Channel';
-import { MessageImage } from './MessageImage';
+import ChannelChatImage from './ChannelChatImage';
 import User from './User';
 
 @Entity()
-export class Message extends BaseEntity {
+export default class Message extends BaseEntity {
   @PrimaryColumn()
   id!: number;
 
@@ -23,17 +23,21 @@ export class Message extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @OneToMany(() => MessageImage, (MessageImage) => MessageImage.message, {
-    nullable: true,
-    eager: true,
-  })
-  images!: MessageImage[];
+  @OneToMany(
+    () => ChannelChatImage,
+    (ChannelChatImage) => ChannelChatImage.chat,
+    {
+      nullable: true,
+      eager: true,
+    }
+  )
+  images!: ChannelChatImage[];
 
-  @ManyToOne(() => User, (User) => User.messages)
+  @ManyToOne(() => User, (User) => User.channelChat)
   @JoinColumn({ name: 'author_id' })
   author!: User;
 
-  @ManyToOne(() => Channel, (Channel) => Channel.messages)
+  @ManyToOne(() => Channel, (Channel) => Channel.chats)
   @JoinColumn({ name: 'channel_id' })
   channel!: Channel;
 }
