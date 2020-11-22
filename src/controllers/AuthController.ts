@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { json, NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import User from '../entity/User';
 
@@ -22,9 +22,13 @@ export const localLogin = (req: Request, res: Response, next: NextFunction) => {
     return res.sendStatus(404);
   }
 
-  passport.authenticate('local', (error, user: User) => {
+  passport.authenticate('local', (error, user: User, message) => {
     if (error) {
       return next(error);
+    }
+
+    if (message) {
+      return res.sendStatus(404);
     }
 
     req.logIn(user, (loginError) => {

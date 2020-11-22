@@ -1,3 +1,4 @@
+import { addChannelMembers } from './../controllers/ChannelController';
 import express from 'express';
 import {
   createChannel,
@@ -14,7 +15,9 @@ channelsRouter.use(isLoggedIn);
 channelsRouter.get('/', listChannels);
 channelsRouter.post('/', createChannel);
 
-channelsRouter.get('/:id/chats', listChannelChats);
-channelsRouter.post('/:id/chats', createChannelChat);
+channelsRouter.post('/:channelId/members', addChannelMembers);
+
+channelsRouter.get('/:channelId/chats', listChannelChats);
+channelsRouter.post('/:channelId/chats', createChannelChat);
 
 export default channelsRouter;

@@ -5,7 +5,7 @@ import DirectMessage from '../entity/DirectMessage';
 import User from '../entity/User';
 import { IOnlineMap } from '../socket';
 
-export const getFriends = async (req: Request, res: Response) => {
+export const listFriends = async (req: Request, res: Response) => {
   const userRepo = getRepository(User);
   const authenticatedUser = req.user as User;
 
@@ -119,7 +119,7 @@ export const createDirectMessage = async (
   }
 };
 
-export const listDirectMessage = async (
+export const listDirectMessages = async (
   req: Request,
   res: Response,
   next: NextFunction

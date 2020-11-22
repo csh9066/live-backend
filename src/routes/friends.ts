@@ -2,8 +2,8 @@ import express from 'express';
 import {
   addFriendByEmail,
   createDirectMessage,
-  getFriends,
-  listDirectMessage,
+  listDirectMessages,
+  listFriends,
 } from '../controllers/FriendsController';
 import { isLoggedIn } from '../middlewares';
 
@@ -11,11 +11,11 @@ const usersRouter = express.Router();
 
 usersRouter.use(isLoggedIn);
 
-usersRouter.get('/', getFriends);
+usersRouter.get('/', listFriends);
 usersRouter.get('/:email');
 usersRouter.post('/:email', addFriendByEmail);
 
 usersRouter.post('/:id/dm', createDirectMessage);
-usersRouter.get('/:id/dm', listDirectMessage);
+usersRouter.get('/:id/dm', listDirectMessages);
 
 export default usersRouter;
