@@ -35,8 +35,8 @@ export default class ChannelChat extends BaseEntity {
   images!: ChannelChatImage[];
 
   @ManyToOne(() => User, (User) => User.channelChat)
-  @JoinColumn({ name: 'author_id' })
-  author!: User;
+  @JoinColumn({ name: 'sender_id' })
+  sender!: User;
 
   @ManyToOne(() => Channel, (Channel) => Channel.chats)
   @JoinColumn({ name: 'channel_id' })
