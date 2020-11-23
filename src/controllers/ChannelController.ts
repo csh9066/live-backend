@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
+import { Server } from 'socket.io';
 import { getRepository, In } from 'typeorm';
 import Channel from '../entity/Channel';
 import ChannelChat from '../entity/ChannelChat';
 import User from '../entity/User';
+import { IOnlineMap, SocketEvent } from '../socket';
 
 export const listChannels = async (
   req: Request,
@@ -16,7 +18,7 @@ export const listChannels = async (
       where: {
         id: authenticatedUser.id,
       },
-      relations: ['channels', 'channels.member'],
+      relations: ['channels', 'channels.members'],
     });
 
     res.json(serializedUser?.channels);
@@ -48,7 +50,7 @@ export const createChannel = async (
 
     const createdChannel = await channelRepo.create({
       title,
-      member: [serializedUser],
+      members: [serializedUser],
     });
     await createdChannel.save();
 
@@ -113,7 +115,7 @@ export const createChannelChat = async (
     )) as User;
 
     const channel = await getRepository(Channel).findOne(channelId, {
-      relations: ['member', 'chats'],
+      relations: ['members', 'chats'],
     });
 
     if (!channel || !channel?.includeMemberBy(serializedUser.id)) {
@@ -129,7 +131,13 @@ export const createChannelChat = async (
     const returnedChat = await chatRepop.findOne(newChat.id, {
       relations: ['sender'],
     });
-    res.json(returnedChat);
+
+    const io: Server = req.app.get('io');
+    io.to(channelId).emit(SocketEvent.CHANNEL_CHAT, {
+      message: returnedChat,
+      channelId,
+    });
+    res.sendStatus(201);
   } catch (e) {
     next(e);
   }
@@ -153,7 +161,7 @@ export const addChannelMembers = async (
 
   try {
     const channel = await channelRepo.findOne(channelId, {
-      relations: ['chats', 'member'],
+      relations: ['chats', 'members'],
     });
 
     if (!channel || !channel.includeMemberBy(authenticatedUser.id)) {
@@ -166,7 +174,7 @@ export const addChannelMembers = async (
       },
     });
 
-    channel.member.push(...members);
+    channel.members.push(...members);
     await channel.save();
 
     res.json(members);

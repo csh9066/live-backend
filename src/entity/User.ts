@@ -35,7 +35,7 @@ export default class User extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @ManyToMany(() => Channel, (Channel) => Channel.member)
+  @ManyToMany(() => Channel, (Channel) => Channel.members)
   channels!: Channel[];
 
   @OneToMany(() => ChnnelChat, (ChnnelChat) => ChnnelChat.sender)

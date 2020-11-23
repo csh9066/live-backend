@@ -25,22 +25,22 @@ export default class Channel extends BaseEntity {
 
   @ManyToMany((type) => User, (User) => User.channels)
   @JoinTable({
-    name: 'channel_member',
+    name: 'channel_members',
     joinColumn: { name: 'channel_id' },
     inverseJoinColumn: { name: 'user_id' },
   })
-  member!: User[];
+  members!: User[];
 
   @OneToMany((type) => ChannelChat, (ChannelChat) => ChannelChat.channel)
   chats!: ChannelChat[];
 
   public includeMemberBy(memberId: number) {
-    if (!this.member) {
+    if (!this.members) {
       throw Error(
         'it is not exit to member in this channel, you need to join member'
       );
     }
-    const member = this.member.find((member) => member.id === memberId);
+    const member = this.members.find((member) => member.id === memberId);
     return member ? true : false;
   }
 }
