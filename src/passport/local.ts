@@ -13,6 +13,10 @@ export = () => {
         try {
           const user = await userRepo.findOne({ email });
 
+          if (!user) {
+            return done(null, null, { message: 'not found' });
+          }
+
           return done(null, user);
         } catch (e) {
           done(e);

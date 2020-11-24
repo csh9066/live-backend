@@ -29,9 +29,6 @@ export default class User extends BaseEntity {
   @Column({ nullable: true, name: 'profile_img_url' })
   profileImageUrl!: string;
 
-  @Column({ default: false })
-  online!: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

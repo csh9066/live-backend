@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
+import { send } from 'process';
 import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
 import DirectMessage from '../entity/DirectMessage';
 import User from '../entity/User';
-import { IOnlineMap } from '../socket';
+import { IOnlineMap, SocketEvent } from '../socket';
 
 export const listFriends = async (req: Request, res: Response) => {
   const userRepo = getRepository(User);
@@ -23,7 +24,7 @@ export const addFriendByEmail = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.params;
+  const { email } = req.body;
   if (!email) {
     return res.status(404).send('존재 하지 않는 유저입니다.');
   }
@@ -110,7 +111,10 @@ export const createDirectMessage = async (
     const onlineMap: IOnlineMap = req.app.get('onlineMap');
 
     if (onlineMap[id]) {
-      io.to(onlineMap[id]).emit('receive dm', serializedDm);
+      io.to(onlineMap[id]).emit(SocketEvent.DM, {
+        message: serializedDm,
+        senderId: serializedDm?.sender.id,
+      });
     }
 
     res.json(serializedDm);

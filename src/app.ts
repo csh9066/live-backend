@@ -10,7 +10,7 @@ import passport from 'passport';
 import passportConfig from './passport';
 
 import authRouter from './routes/auth';
-import usersRouter from './routes/friends';
+import friendsRouter from './routes/friends';
 import socket from './socket';
 import channelsRouter from './routes/channels';
 
@@ -51,7 +51,7 @@ app.use(passport.session());
 passportConfig();
 
 app.use('/auth', authRouter);
-app.use('/friends', usersRouter);
+app.use('/friends', friendsRouter);
 app.use('/channels', channelsRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {

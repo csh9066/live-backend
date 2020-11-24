@@ -15,7 +15,7 @@ authRouter.get(
 authRouter.get(
   '/facebook/callback',
   passport.authenticate('facebook', {
-    successRedirect: 'http://localhost:3000/',
+    successRedirect: 'http://localhost:3000/app',
   })
 );
 
