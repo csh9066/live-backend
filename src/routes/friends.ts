@@ -7,15 +7,14 @@ import {
 } from '../controllers/FriendsController';
 import { isLoggedIn } from '../middlewares';
 
-const usersRouter = express.Router();
+const friendsRouter = express.Router();
 
-usersRouter.use(isLoggedIn);
+friendsRouter.use(isLoggedIn);
 
-usersRouter.get('/', listFriends);
-usersRouter.get('/:email');
-usersRouter.post('/:email', addFriendByEmail);
+friendsRouter.get('/', listFriends);
+friendsRouter.post('/', addFriendByEmail);
 
-usersRouter.post('/:id/dm', createDirectMessage);
-usersRouter.get('/:id/dm', listDirectMessages);
+friendsRouter.post('/:id/dm', createDirectMessage);
+friendsRouter.get('/:id/dm', listDirectMessages);
 
-export default usersRouter;
+export default friendsRouter;

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { getRepository, In } from 'typeorm';
 import Channel from '../entity/Channel';
 import ChannelChat from '../entity/ChannelChat';
@@ -137,6 +137,7 @@ export const createChannelChat = async (
       message: returnedChat,
       channelId,
     });
+
     res.sendStatus(201);
   } catch (e) {
     next(e);
@@ -161,7 +162,7 @@ export const addChannelMembers = async (
 
   try {
     const channel = await channelRepo.findOne(channelId, {
-      relations: ['chats', 'members'],
+      relations: ['members'],
     });
 
     if (!channel || !channel.includeMemberBy(authenticatedUser.id)) {
@@ -176,6 +177,15 @@ export const addChannelMembers = async (
 
     channel.members.push(...members);
     await channel.save();
+
+    const io: Server = req.app.get('io');
+    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+
+    members.forEach((member) => {
+      if (onlineMap[member.id]) {
+        io.to(onlineMap[member.id]).emit(SocketEvent.ADD_CHANNEL, channel);
+      }
+    });
 
     res.json(members);
   } catch (e) {
