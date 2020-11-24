@@ -61,11 +61,21 @@ export const addFriendByEmail = async (
     await friendToBeAdded.save();
     await me.save();
 
-    const AddedFrined = await userRepo.findOne({
+    const addedFrined = await userRepo.findOne({
       where: { email },
     });
 
-    res.json(AddedFrined);
+    const io: Server = req.app.get('io');
+    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+
+    if (addedFrined && onlineMap[addedFrined.id]) {
+      io.to(onlineMap[addedFrined.id]).emit(
+        SocketEvent.ADD_FRIEND,
+        authenticatedUser
+      );
+    }
+
+    res.json(addedFrined);
   } catch (e) {
     next(e);
   }
