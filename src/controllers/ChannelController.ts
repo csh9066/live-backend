@@ -192,3 +192,42 @@ export const addChannelMembers = async (
     next(e);
   }
 };
+
+export const removeChannelMember = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { channelId, memberId } = req.params;
+
+  if (!channelId || !memberId) {
+    return res.sendStatus(400);
+  }
+
+  const channelRepo = getRepository(Channel);
+  const authenticatedUser = req.user as User;
+  try {
+    const channel = await channelRepo.findOne(channelId, {
+      relations: ['members'],
+    });
+
+    // 채널이 없거나 권한이 없거나 요청하는 맴버 아이디와 세션 아이디가 다를 때
+    if (
+      !channel ||
+      !channel.includeMemberBy(authenticatedUser.id) ||
+      authenticatedUser.id !== parseInt(memberId)
+    ) {
+      return res.status(403).send('존재 하지않거나 권한이 없습니다.');
+    }
+
+    channel.members = channel.members.filter(
+      (member) => member.id !== parseInt(memberId)
+    );
+
+    await channel.save();
+
+    res.send('deleted at');
+  } catch (e) {
+    next(e);
+  }
+};

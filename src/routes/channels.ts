@@ -1,4 +1,7 @@
-import { addChannelMembers } from './../controllers/ChannelController';
+import {
+  addChannelMembers,
+  removeChannelMember,
+} from './../controllers/ChannelController';
 import express from 'express';
 import {
   createChannel,
@@ -16,6 +19,7 @@ channelsRouter.get('/', listChannels);
 channelsRouter.post('/', createChannel);
 
 channelsRouter.post('/:channelId/members', addChannelMembers);
+channelsRouter.delete('/:channelId/members/:memberId', removeChannelMember);
 
 channelsRouter.get('/:channelId/chats', listChannelChats);
 channelsRouter.post('/:channelId/chats', createChannelChat);
