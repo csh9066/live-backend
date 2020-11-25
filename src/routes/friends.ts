@@ -1,3 +1,4 @@
+import { removeFriend } from './../controllers/FriendsController';
 import express from 'express';
 import {
   addFriendByEmail,
@@ -13,6 +14,7 @@ friendsRouter.use(isLoggedIn);
 
 friendsRouter.get('/', listFriends);
 friendsRouter.post('/', addFriendByEmail);
+friendsRouter.delete('/:id', removeFriend);
 
 friendsRouter.post('/:id/dm', createDirectMessage);
 friendsRouter.get('/:id/dm', listDirectMessages);

@@ -14,9 +14,10 @@ export const SocketEvent = {
   JOIN_CHANNELS: 'JOIN_CHANNELS' as const,
   JOIN_CHANNEL: 'JOIN_CHANNEL' as const,
   ADD_CHANNEL: 'ADD_CHANNEL' as const,
-  ADD_FRIEND: 'ADD_FRIEND' as const,
   REMOVE_CHANNEL: 'REMOVE_CHANNEL' as const,
   LEAVE_CHANNEL_MEMBER: 'LEAVE_CHANNEL_MEMBER' as const,
+  ADD_FRIEND: 'ADD_FRIEND' as const,
+  REMOVE_FRIEND: 'REMOVE_FRIEND' as const,
 };
 
 const onlineMap: IOnlineMap = {};

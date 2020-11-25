@@ -81,6 +81,57 @@ export const addFriendByEmail = async (
   }
 };
 
+export const removeFriend = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = parseInt(req.params.id);
+
+  if (!id) {
+    res.sendStatus(400);
+  }
+
+  const authenticatedUser = req.user as User;
+  const userRepo = getRepository(User);
+
+  try {
+    const removeFriend = await userRepo.findOne(id, {
+      relations: ['friends'],
+    });
+
+    const isFriend = removeFriend?.friends.some(
+      (friend) => friend.id === authenticatedUser.id
+    );
+
+    if (!removeFriend || !isFriend) {
+      return res.status(403).send('존재하지 않는 유저거나 권한이 없습니다');
+    }
+
+    const me = (await userRepo.findOne(authenticatedUser.id, {
+      relations: ['friends'],
+    })) as User;
+
+    me.friends = me.friends.filter((friend) => friend.id !== removeFriend.id);
+    removeFriend.friends = removeFriend.friends.filter(
+      (friend) => friend.id !== me.id
+    );
+    await me.save();
+    await removeFriend.save();
+
+    const io: Server = req.app.get('io');
+    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+
+    if (onlineMap[removeFriend.id]) {
+      io.to(onlineMap[removeFriend.id]).emit(SocketEvent.REMOVE_FRIEND, me.id);
+    }
+
+    res.send('deleted at');
+  } catch (e) {
+    next(e);
+  }
+};
+
 export const createDirectMessage = async (
   req: Request,
   res: Response,
@@ -88,13 +139,14 @@ export const createDirectMessage = async (
 ) => {
   const id = parseInt(req.params.id);
   const { content } = req.body;
-  const authenticatedUser = req.user as User;
-  const userRepo = getRepository(User);
-  const dmRepo = getRepository(DirectMessage);
 
   if (!content || !id) {
     res.sendStatus(400);
   }
+
+  const authenticatedUser = req.user as User;
+  const userRepo = getRepository(User);
+  const dmRepo = getRepository(DirectMessage);
 
   try {
     const receiver = await userRepo.findOne(id);
@@ -141,6 +193,18 @@ export const listDirectMessages = async (
   const { id } = req.params;
   const authenticatedUser = req.user as User;
   try {
+    const friend = await getRepository(User).findOne(id, {
+      relations: ['friends'],
+    });
+
+    const isFriend = friend?.friends.some(
+      (friend) => friend.id === authenticatedUser.id
+    );
+
+    if (!removeFriend || !isFriend) {
+      return res.status(403).send('존재하지 않는 유저거나 권한이 없습니다');
+    }
+
     const dmList = await getRepository(DirectMessage).find({
       where: [
         { sender: { id }, receiver: { id: authenticatedUser.id } },
