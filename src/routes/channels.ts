@@ -3,13 +3,12 @@ import {
   removeChannelMember,
 } from './../controllers/ChannelController';
 import express from 'express';
+import { createChannel, listChannels } from '../controllers/ChannelController';
+import { isLoggedIn } from '../middlewares';
 import {
-  createChannel,
   createChannelChat,
   listChannelChats,
-  listChannels,
-} from '../controllers/ChannelController';
-import { isLoggedIn } from '../middlewares';
+} from '../controllers/ChannelChatController';
 
 const channelsRouter = express.Router();
 

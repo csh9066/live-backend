@@ -1,12 +1,11 @@
-import { removeFriend } from './../controllers/FriendsController';
+import { removeFriend } from '../controllers/FriendController';
 import express from 'express';
+import { addFriendByEmail, listFriends } from '../controllers/FriendController';
+import { isLoggedIn } from '../middlewares';
 import {
-  addFriendByEmail,
   createDirectMessage,
   listDirectMessages,
-  listFriends,
-} from '../controllers/FriendsController';
-import { isLoggedIn } from '../middlewares';
+} from '../controllers/DirectMessageController';
 
 const friendsRouter = express.Router();
 
