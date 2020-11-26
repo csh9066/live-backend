@@ -13,11 +13,11 @@ import authRouter from './routes/auth';
 import friendsRouter from './routes/friends';
 import socket from './socket';
 import channelsRouter from './routes/channels';
+import imageRouter from './routes/image';
 
 dotenv.config();
 const app = express();
 app.set('port', process.env.PORT || 3005);
-// console.log(ormconfig);
 
 createConnection()
   .then(() => {
@@ -53,6 +53,7 @@ passportConfig();
 app.use('/auth', authRouter);
 app.use('/friends', friendsRouter);
 app.use('/channels', channelsRouter);
+app.use('/image', imageRouter);
 
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   console.log(error);
