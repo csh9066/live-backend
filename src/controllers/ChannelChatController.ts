@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
 import Channel from '../entity/Channel';
 import ChannelChat from '../entity/ChannelChat';
+import ChannelChatImage from '../entity/ChannelChatImage';
 import User from '../entity/User';
 import { SocketEvent } from '../socket';
 
@@ -45,9 +46,9 @@ export const createChannelChat = async (
   next: NextFunction
 ) => {
   const { channelId } = req.params;
-  const { content } = req.body;
+  const { chat, imageUrls }: { chat: string; imageUrls: string[] } = req.body;
 
-  if (!channelId || !content) {
+  if (!channelId || !chat) {
     return res.sendStatus(400);
   }
   const userRepo = getRepository(User);
@@ -67,12 +68,22 @@ export const createChannelChat = async (
     if (!channel || !channel?.includeMemberBy(serializedUser.id)) {
       return res.status(403).send('존재 하지않거나 권한이 없습니다.');
     }
-    const newChat = await chatRepop.create({
+    const newChat = await chatRepop.save({
       sender: serializedUser,
-      content,
+      content: chat,
       channel,
     });
-    await newChat.save();
+
+    if (imageUrls && imageUrls.length !== 0) {
+      await getRepository(ChannelChatImage).insert(
+        imageUrls.map((imageUrl) => {
+          return {
+            src: imageUrl,
+            chat: newChat,
+          };
+        })
+      );
+    }
 
     const returnedChat = await chatRepop.findOne(newChat.id, {
       relations: ['sender'],

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
 import DirectMessage from '../entity/DirectMessage';
+import DirectMessageImage from '../entity/DirectMessageImage';
 import User from '../entity/User';
 import { IOnlineMap, SocketEvent } from '../socket';
 
@@ -11,10 +12,11 @@ export const createDirectMessage = async (
   next: NextFunction
 ) => {
   const id = parseInt(req.params.id);
-  const { content } = req.body;
 
-  if (!content || !id) {
-    res.sendStatus(400);
+  const { chat, imageUrls }: { chat: string; imageUrls: string[] } = req.body;
+
+  if (!chat || !id) {
+    return res.sendStatus(400);
   }
 
   const authenticatedUser = req.user as User;
@@ -30,10 +32,21 @@ export const createDirectMessage = async (
     }
 
     const createdDm = await dmRepo.save({
-      content,
+      content: chat,
       receiver,
       sender,
     });
+
+    if (imageUrls && imageUrls.length !== 0) {
+      await getRepository(DirectMessageImage).insert(
+        imageUrls.map((imageUrl) => {
+          return {
+            src: imageUrl,
+            message: createdDm,
+          };
+        })
+      );
+    }
 
     const serializedDm = await dmRepo.findOne({
       where: {
