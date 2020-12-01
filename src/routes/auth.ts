@@ -5,6 +5,7 @@ import * as AuthController from '../controllers/AuthController';
 const authRouter = express.Router();
 
 authRouter.get('/check', AuthController.check);
+authRouter.get('/logout', AuthController.logout);
 authRouter.post('/local/login', AuthController.localLogin);
 
 authRouter.get(
