@@ -8,10 +8,14 @@ export = () => {
   passport.use(
     new LocalStrategy(
       { usernameField: 'email', passwordField: 'password' },
-      async (email, _, done) => {
+      async (email, password, done) => {
         const userRepo = getRepository(User);
         try {
-          const user = await userRepo.findOne({ email });
+          const user = await userRepo.findOne({
+            email,
+            password,
+            provider: 'local',
+          });
 
           if (!user) {
             return done(null, null, { message: 'not found' });
