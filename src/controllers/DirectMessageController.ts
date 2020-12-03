@@ -59,10 +59,7 @@ export const createDirectMessage = async (
     const onlineMap: IOnlineMap = req.app.get('onlineMap');
 
     if (onlineMap[id]) {
-      io.to(onlineMap[id]).emit(SocketEvent.DM, {
-        message: serializedDm,
-        senderId: serializedDm?.sender.id,
-      });
+      io.to(onlineMap[id]).emit(SocketEvent.DM, serializedDm);
     }
 
     res.json(serializedDm);
