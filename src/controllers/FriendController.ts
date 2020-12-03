@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
 import User from '../entity/User';
-import { IOnlineMap, SocketEvent } from '../socket';
+import { IUserSocketInfo, SocketEvent } from '../socket';
 
 export const listFriends = async (req: Request, res: Response) => {
   const userRepo = getRepository(User);
@@ -64,13 +64,14 @@ export const addFriendByEmail = async (
     });
 
     const io: Server = req.app.get('io');
-    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+    const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
 
-    if (addedFrined && onlineMap[addedFrined.id]) {
-      io.to(onlineMap[addedFrined.id]).emit(
-        SocketEvent.ADD_FRIEND,
-        authenticatedUser
-      );
+    if (addedFrined) {
+      const addedUserSocketInfo = userMap.get(addedFrined.id);
+      const socketId = addedUserSocketInfo?.socketId;
+
+      socketId &&
+        io.to(socketId).emit(SocketEvent.ADD_FRIEND, authenticatedUser);
     }
 
     res.json(addedFrined);
@@ -118,10 +119,15 @@ export const removeFriend = async (
     await removeFriend.save();
 
     const io: Server = req.app.get('io');
-    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+    const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
 
-    if (onlineMap[removeFriend.id]) {
-      io.to(onlineMap[removeFriend.id]).emit(SocketEvent.REMOVE_FRIEND, me.id);
+    const removeduseSocketInfo = userMap.get(removeFriend.id);
+
+    if (removeduseSocketInfo) {
+      io.to(removeduseSocketInfo.socketId).emit(
+        SocketEvent.REMOVE_FRIEND,
+        me.id
+      );
     }
 
     res.send('deleted at');

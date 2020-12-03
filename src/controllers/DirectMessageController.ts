@@ -4,7 +4,7 @@ import { getRepository } from 'typeorm';
 import DirectMessage from '../entity/DirectMessage';
 import DirectMessageImage from '../entity/DirectMessageImage';
 import User from '../entity/User';
-import { IOnlineMap, SocketEvent } from '../socket';
+import { IUserSocketInfo, SocketEvent } from '../socket';
 
 export const createDirectMessage = async (
   req: Request,
@@ -56,10 +56,11 @@ export const createDirectMessage = async (
     });
 
     const io: Server = req.app.get('io');
-    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+    const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
 
-    if (onlineMap[id]) {
-      io.to(onlineMap[id]).emit(SocketEvent.DM, serializedDm);
+    const userSocketInfo = userMap.get(id);
+    if (userSocketInfo) {
+      io.to(userSocketInfo.socketId).emit(SocketEvent.DM, serializedDm);
     }
 
     res.json(serializedDm);

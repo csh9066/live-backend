@@ -1,13 +1,18 @@
 import { Application } from 'express';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
+import { getRepository } from 'typeorm';
+import User from './entity/User';
 
-export interface IOnlineMap {
-  [userId: string]: string;
+export interface IUserSocketInfo {
+  socketId: string;
+  friendIds: number[];
 }
 
 export enum SocketEvent {
   ONLINE = 'ONLINE',
+  ONLINE_FRIEND = 'ONLINE_FRIEND',
+  ONLINE_FRIENDS = 'ONLINE_FRIEND_LIST',
   DM = 'DM',
   CHANNEL_CHAT = 'CHANNEL_CHAT',
   JOIN_CHANNELS = 'JOIN_CHANNELS',
@@ -19,7 +24,7 @@ export enum SocketEvent {
   REMOVE_FRIEND = 'REMOVE_FRIEND',
 }
 
-const onlineMap: IOnlineMap = {};
+const userMap = new Map<number, IUserSocketInfo>();
 
 const initialSocket = (appServer: http.Server, app: Application) => {
   const io = new Server(appServer, {
@@ -28,12 +33,26 @@ const initialSocket = (appServer: http.Server, app: Application) => {
     },
   });
 
-  app.set('onlineMap', onlineMap);
+  app.set('userMap', userMap);
   app.set('io', io);
 
   io.on('connection', (socket: Socket) => {
-    socket.on(SocketEvent.ONLINE, (userId: number) => {
-      onlineMap[userId] = socket.id;
+    socket.on(SocketEvent.ONLINE, async (userId: number) => {
+      const user = await getRepository(User).findOne(userId, {
+        relations: ['friends'],
+      });
+
+      if (user) {
+        const onlineFriends = user.friends.filter((friend) =>
+          userMap.has(friend.id)
+        );
+
+        const onlineFriendIds = onlineFriends.map((friend) => friend.id);
+        userMap.set(user.id, {
+          socketId: socket.id,
+          friendIds: onlineFriendIds,
+        });
+      }
     });
 
     socket.on(SocketEvent.JOIN_CHANNELS, (channelIds: number[] = []) => {
@@ -47,24 +66,25 @@ const initialSocket = (appServer: http.Server, app: Application) => {
     socket.on(SocketEvent.REMOVE_CHANNEL, (channlId: number) => {
       socket.leave(String(channlId));
 
-      let leavedMemberId;
-      Object.keys(onlineMap).forEach((id) => {
-        if (onlineMap[id] === socket.id) {
-          leavedMemberId = id;
+      // userMapdp에 있는 정보를 순회해서 현재 나가는 socketId찾아 찾으면 채널에 나갔다고 알림
+      for (let [userId, info] of userMap.entries()) {
+        if (info.socketId === socket.id) {
+          socket
+            .to(String(channlId))
+            .emit(SocketEvent.LEAVE_CHANNEL_MEMBER, userId, channlId);
+          break;
         }
-      });
-
-      socket
-        .to(String(channlId))
-        .emit(SocketEvent.LEAVE_CHANNEL_MEMBER, leavedMemberId, channlId);
+      }
     });
 
     socket.on('disconnect', async () => {
-      Object.keys(onlineMap).forEach((id) => {
-        if (onlineMap[id] == socket.id) {
-          delete onlineMap[id];
+      for (let [userId, info] of userMap.entries()) {
+        if (info.socketId === socket.id) {
+          console.log(info.friendIds);
+          userMap.delete(userId);
+          break;
         }
-      });
+      }
     });
   });
 };

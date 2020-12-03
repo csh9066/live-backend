@@ -3,7 +3,7 @@ import { Server } from 'socket.io';
 import { getRepository, In } from 'typeorm';
 import Channel from '../entity/Channel';
 import User from '../entity/User';
-import { IOnlineMap, SocketEvent } from '../socket';
+import { IUserSocketInfo, SocketEvent } from '../socket';
 
 export const listChannels = async (
   req: Request,
@@ -94,11 +94,16 @@ export const addChannelMembers = async (
     await channel.save();
 
     const io: Server = req.app.get('io');
-    const onlineMap: IOnlineMap = req.app.get('onlineMap');
+    const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
+
+    io.to(String(channel.id)).emit(SocketEvent.ADD_CHANNEL, channel);
 
     members.forEach((member) => {
-      if (onlineMap[member.id]) {
-        io.to(onlineMap[member.id]).emit(SocketEvent.ADD_CHANNEL, channel);
+      if (userMap.has(member.id)) {
+        io.to(String(userMap.get(member.id)?.socketId)).emit(
+          SocketEvent.ADD_CHANNEL,
+          channel
+        );
       }
     });
 
