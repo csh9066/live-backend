@@ -12,7 +12,8 @@ export interface IUserSocketInfo {
 export enum SocketEvent {
   ONLINE = 'ONLINE',
   ONLINE_FRIEND = 'ONLINE_FRIEND',
-  ONLINE_FRIENDS = 'ONLINE_FRIEND_LIST',
+  ONLINE_FRIENDS = 'ONLINE_FRIENDS',
+  OFFLINE_FRIEND = 'OFFLINE_FRIEND',
   DM = 'DM',
   CHANNEL_CHAT = 'CHANNEL_CHAT',
   JOIN_CHANNELS = 'JOIN_CHANNELS',
@@ -43,16 +44,27 @@ const initialSocket = (appServer: http.Server, app: Application) => {
       });
 
       if (user) {
-        const onlineFriends = user.friends.filter((friend) =>
-          userMap.has(friend.id)
-        );
-
-        const onlineFriendIds = onlineFriends.map((friend) => friend.id);
+        const friendIds = user.friends.map((friend) => friend.id);
         userMap.set(user.id, {
           socketId: socket.id,
-          friendIds: onlineFriendIds,
+          friendIds,
+        });
+        socket.emit(SocketEvent.ONLINE);
+
+        friendIds.forEach((id) => {
+          if (userMap.has(id)) {
+            const socketId = userMap.get(id)?.socketId as string;
+            socket.to(socketId).emit(SocketEvent.ONLINE_FRIEND, user.id);
+          }
         });
       }
+    });
+
+    socket.on(SocketEvent.ONLINE_FRIENDS, (userId: number) => {
+      const onlineFriends = userMap
+        .get(userId)
+        ?.friendIds.filter((id) => userMap.has(id));
+      socket.emit(SocketEvent.ONLINE_FRIENDS, onlineFriends);
     });
 
     socket.on(SocketEvent.JOIN_CHANNELS, (channelIds: number[] = []) => {
@@ -78,9 +90,17 @@ const initialSocket = (appServer: http.Server, app: Application) => {
     });
 
     socket.on('disconnect', async () => {
+      // userMap에 있는 정보를 순회해 연결이 끊어지는 소켓을 userMap에 삭제하고
+      // 온라인인 친구들에게 오프라인 이벤트를 보냄
       for (let [userId, info] of userMap.entries()) {
         if (info.socketId === socket.id) {
-          console.log(info.friendIds);
+          info.friendIds.forEach((id) => {
+            if (userMap.has(id)) {
+              const socketId = userMap.get(id)?.socketId as string;
+              socket.to(socketId).emit(SocketEvent.OFFLINE_FRIEND, userId);
+            }
+          });
+
           userMap.delete(userId);
           break;
         }
