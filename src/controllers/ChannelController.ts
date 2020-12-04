@@ -95,10 +95,11 @@ export const addChannelMembers = async (
 
     const io: Server = req.app.get('io');
     const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
+    const membersToExcludeMe = members.filter(
+      (member) => member.id !== authenticatedUser.id
+    );
 
-    io.to(String(channel.id)).emit(SocketEvent.ADD_CHANNEL, channel);
-
-    members.forEach((member) => {
+    membersToExcludeMe.forEach((member) => {
       if (userMap.has(member.id)) {
         io.to(String(userMap.get(member.id)?.socketId)).emit(
           SocketEvent.ADD_CHANNEL,
@@ -107,7 +108,7 @@ export const addChannelMembers = async (
       }
     });
 
-    res.json(members);
+    res.json(membersToExcludeMe);
   } catch (e) {
     next(e);
   }
