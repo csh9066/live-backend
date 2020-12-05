@@ -24,9 +24,11 @@ export const addFriendByEmail = async (
   next: NextFunction
 ) => {
   const { email } = req.body;
+
   if (!email) {
-    return res.status(404).send('존재 하지 않는 유저입니다.');
+    return res.status(400).send('이메일을 입력 해주세요');
   }
+
   try {
     const authenticatedUser = req.user as User;
     const userRepo = getRepository(User);
@@ -37,7 +39,11 @@ export const addFriendByEmail = async (
     });
 
     if (!friendToBeAdded) {
-      return res.status(404).send('존재하지 않은 유저 입니다.');
+      return res.status(404).send('존재하지 않는 유저입니다');
+    }
+
+    if (friendToBeAdded.email === authenticatedUser.email) {
+      return res.status(400).send('자기 자신을 추가할 수 없습니다.');
     }
 
     const me = (await userRepo.findOne({
