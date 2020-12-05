@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
 import User from '../entity/User';
+import { removeFriendInSocketInfo } from '../lib/socketHelpers';
 import { IUserSocketInfo, SocketEvent } from '../socket';
 
 export const listFriends = async (req: Request, res: Response) => {
@@ -59,22 +60,28 @@ export const addFriendByEmail = async (
     await friendToBeAdded.save();
     await me.save();
 
-    const addedFrined = await userRepo.findOne({
-      where: { email },
-    });
+    const serializeAddedFriend = (await userRepo.findOne(
+      friendToBeAdded.id
+    )) as User;
 
     const io: Server = req.app.get('io');
     const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
+    const userSocketInfo = userMap.get(me.id);
+    const addedUserSocketInfo = userMap.get(serializeAddedFriend.id);
 
-    if (addedFrined) {
-      const addedUserSocketInfo = userMap.get(addedFrined.id);
-      const socketId = addedUserSocketInfo?.socketId;
-
-      socketId &&
-        io.to(socketId).emit(SocketEvent.ADD_FRIEND, authenticatedUser);
+    if (userSocketInfo) {
+      userSocketInfo.friendIds.push(serializeAddedFriend.id);
     }
 
-    res.json(addedFrined);
+    if (addedUserSocketInfo) {
+      addedUserSocketInfo.friendIds.push(me.id);
+      io.to(addedUserSocketInfo.socketId).emit(
+        SocketEvent.ADD_FRIEND,
+        authenticatedUser
+      );
+    }
+
+    res.json(serializeAddedFriend);
   } catch (e) {
     next(e);
   }
@@ -120,10 +127,15 @@ export const removeFriend = async (
 
     const io: Server = req.app.get('io');
     const userMap: Map<number, IUserSocketInfo> = req.app.get('userMap');
-
+    const userSocketInfo = userMap.get(me.id);
     const removeduseSocketInfo = userMap.get(removeFriend.id);
 
+    if (userSocketInfo) {
+      removeFriendInSocketInfo(userSocketInfo, removeFriend.id);
+    }
+
     if (removeduseSocketInfo) {
+      removeFriendInSocketInfo(removeduseSocketInfo, me.id);
       io.to(removeduseSocketInfo.socketId).emit(
         SocketEvent.REMOVE_FRIEND,
         me.id
