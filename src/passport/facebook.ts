@@ -7,8 +7,8 @@ export = () => {
   passport.use(
     new FaceBookStrategy(
       {
-        clientID: process.env.FACEBOOK_CLINET_ID as string,
-        clientSecret: process.env.FACEBOOK_CLINET_SECRET as string,
+        clientID: process.env.FACEBOOK_CLIENT_ID as string,
+        clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
         callbackURL: 'http://localhost:3005/auth/facebook/callback',
         profileFields: ['id', 'email', 'name', 'photos', 'displayName'],
       },
