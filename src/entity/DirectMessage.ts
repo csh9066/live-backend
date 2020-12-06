@@ -22,9 +22,6 @@ export default class DirectMessage extends BaseEntity {
   @Column()
   content!: string;
 
-  @Column({ name: 'is_read', default: false })
-  isRead!: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 

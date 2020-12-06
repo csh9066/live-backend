@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { METHODS } from 'http';
 import { Server } from 'socket.io';
 import { getRepository } from 'typeorm';
 import User from '../entity/User';
@@ -109,7 +110,7 @@ export const removeFriend = async (
 
   try {
     const removeFriend = await userRepo.findOne(id, {
-      relations: ['friends'],
+      relations: ['friends', 'directMessages', 'directMessages.receiver'],
     });
 
     const isFriend = removeFriend?.friends.some(
@@ -121,12 +122,17 @@ export const removeFriend = async (
     }
 
     const me = (await userRepo.findOne(authenticatedUser.id, {
-      relations: ['friends'],
+      relations: ['friends', 'directMessages', 'directMessages.receiver'],
     })) as User;
-
     me.friends = me.friends.filter((friend) => friend.id !== removeFriend.id);
+    me.directMessages = me.directMessages.filter(
+      (dm) => dm.receiver.id !== removeFriend.id
+    );
     removeFriend.friends = removeFriend.friends.filter(
       (friend) => friend.id !== me.id
+    );
+    removeFriend.directMessages = removeFriend.directMessages.filter(
+      (dm) => dm.receiver.id !== me.id
     );
     await me.save();
     await removeFriend.save();
