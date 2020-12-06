@@ -1,6 +1,7 @@
 import { serializeUser, deserializeUser } from 'passport';
 import User from '../entity/User';
 import facebook from './facebook';
+import google from './google';
 import local from './local';
 
 export = () => {
@@ -13,4 +14,5 @@ export = () => {
   });
   facebook();
   local();
+  google();
 };

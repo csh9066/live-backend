@@ -20,4 +20,15 @@ authRouter.get(
   })
 );
 
+authRouter.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+authRouter.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    successRedirect: 'http://localhost:3000/app',
+  })
+);
+
 export default authRouter;
