@@ -7,6 +7,8 @@ import { createConnection } from 'typeorm';
 import cors from 'cors';
 import passport from 'passport';
 
+dotenv.config();
+
 import passportConfig from './passport';
 
 import authRouter from './routes/auth';
@@ -15,7 +17,6 @@ import socket from './socket';
 import channelsRouter from './routes/channels';
 import imageRouter from './routes/image';
 
-dotenv.config();
 const app = express();
 app.set('port', process.env.PORT || 3005);
 
@@ -25,13 +26,14 @@ createConnection()
   })
   .catch((e) => console.log(e));
 
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(
   cors({
-    origin: true,
+    origin:
+      process.env.NODE_ENV === 'production' ? process.env.CLIENT_URL : true,
     credentials: true,
   })
 );
-app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -40,9 +42,10 @@ app.use(
     resave: false,
     saveUninitialized: true,
     secret: process.env.COOKIE_SECRET!,
+    proxy: true,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === 'production',
     },
   })
 );

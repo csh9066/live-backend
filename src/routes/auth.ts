@@ -16,7 +16,7 @@ authRouter.get(
 authRouter.get(
   '/facebook/callback',
   passport.authenticate('facebook', {
-    successRedirect: 'http://localhost:3000/app',
+    successRedirect: `${process.env.CLIENT_URL}/app`,
   })
 );
 
@@ -27,7 +27,7 @@ authRouter.get(
 authRouter.get(
   '/google/callback',
   passport.authenticate('google', {
-    successRedirect: 'http://localhost:3000/app',
+    successRedirect: `${process.env.CLIENT_URL}/app`,
   })
 );
 

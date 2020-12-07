@@ -5,7 +5,9 @@
   "main": "app.ts",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/app.ts"
+    "build": "tsc",
+    "start": "cross-env NODE_ENV=production pm2 start build/app.js",
+    "dev": "cross-env NODE_ENV=development nodemon src/app.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -14,16 +16,17 @@
     "@types/express": "^4.17.8",
     "@types/express-session": "^1.17.0",
     "@types/morgan": "^1.9.1",
+    "@types/multer": "^1.4.4",
+    "@types/multer-s3": "^2.7.8",
     "@types/node": "^14.11.5",
     "@types/passport": "^1.0.4",
     "@types/passport-facebook": "^2.1.10",
-    "@types/passport-kakao": "^0.2.0",
+    "@types/passport-google-oauth20": "^2.0.4",
     "@types/passport-local": "^1.0.33",
-    "@types/passport-naver": "^0.2.0",
     "aws-sdk": "^2.799.0",
-    "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
@@ -33,9 +36,8 @@
     "mysql2": "^2.2.5",
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
-    "passport-kakao": "^1.0.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
-    "passport-naver": "^1.0.6",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^3.0.0",
     "ts-node": "^9.0.0",
@@ -43,8 +45,6 @@
     "typescript": "^4.0.3"
   },
   "devDependencies": {
-    "@types/multer": "^1.4.4",
-    "@types/multer-s3": "^2.7.8",
     "nodemon": "^2.0.4"
   }
 }
