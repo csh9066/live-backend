@@ -9,7 +9,7 @@ export = () => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID as string,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        callbackURL: `${process.env.API_URL}/auth/google/callback`,
+        callbackURL: `/auth/google/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         const profileImageUrl = profile.photos?.shift();

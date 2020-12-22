@@ -9,7 +9,7 @@ export = () => {
       {
         clientID: process.env.FACEBOOK_CLIENT_ID as string,
         clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
-        callbackURL: `${process.env.API_URL}/auth/facebook/callback`,
+        callbackURL: `/auth/facebook/callback`,
         profileFields: ['id', 'email', 'name', 'photos', 'displayName'],
       },
       async (accessToken, refreshToken, profile, done) => {
